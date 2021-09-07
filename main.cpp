@@ -39,35 +39,33 @@ GLuint indices[] =
         };
 
 
-GLfloat vertices2[] = {
-        //COORDS                COLORS
-        -0.5f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // Lower left corner
-        -0.5f,  0.5f, 0.0f,     0.0f, 1.0f, 0.0f,	0.0f, 1.0f, // Upper left corner
-        0.5f,  0.5f, 0.0f,     0.0f, 0.0f, 1.0f,	1.0f, 1.0f, // Upper right corner
-        0.5f, -0.5f, 0.0f,     1.0f, 1.0f, 1.0f,	1.0f, 0.0f  // Lower right corner
-};
+GLfloat lightVertices[] =
+        { //     COORDINATES     //
+                -0.1f, -0.1f,  0.1f,
+                -0.1f, -0.1f, -0.1f,
+                0.1f, -0.1f, -0.1f,
+                0.1f, -0.1f,  0.1f,
+                -0.1f,  0.1f,  0.1f,
+                -0.1f,  0.1f, -0.1f,
+                0.1f,  0.1f, -0.1f,
+                0.1f,  0.1f,  0.1f
+        };
 
-GLuint indices2[] = {
-        0, 2, 1, // Upper triangle
-        0, 3, 2 // Low
-};
-
-GLfloat vertices3[] = {
-        //COORDS                                        //COLORS
-        -0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,        0.8f, 0.3f,  0.02f, // Lower left corner
-        0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,         0.8f, 0.3f,  0.02f, // Lower right corner
-        0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f,      1.0f, 0.6f,  0.32f,// Upper corner
-        -0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f,     0.9f, 0.45f, 0.17f,// Inner left
-        0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f,      0.9f, 0.45f, 0.17f,// Inner right
-        0.0f, -0.5f * float(sqrt(3)) / 3, 0.0f,         0.8f, 0.3f,  0.02f // Inner down
-};
-
-
-GLuint indices3[] = {
-        0, 3, 5, // Lower left triangle
-        3, 2, 4, // Lower right triangle
-        5, 4, 1 // Upper triangle
-};
+GLuint lightIndices[] =
+        {
+                0, 1, 2,
+                0, 2, 3,
+                0, 4, 7,
+                0, 7, 3,
+                3, 7, 6,
+                3, 6, 2,
+                2, 6, 5,
+                2, 5, 1,
+                1, 5, 4,
+                1, 4, 0,
+                4, 5, 6,
+                4, 6, 7
+        };
 
 
 class App {
@@ -120,6 +118,7 @@ public:
 
         //create vao and bind it
         auto vao = VAO();
+
         vao.Bind();
 
         //create vbo and ebo for vao
@@ -135,6 +134,30 @@ public:
         vbo.Unbind();
         ebo.Unbind();
 
+        Shader lightShader("../src/shader/shaders/light.vert", "../src/shader/shaders/light.frag");
+
+        auto lightVAO = VAO();
+        lightVAO.Bind();
+        VBO lightVBO(lightVertices, sizeof(lightVertices));
+        EBO lightEBO(lightIndices, sizeof(lightIndices));
+
+        lightVAO.LinkAttribs(lightVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)nullptr);
+        lightVAO.Unbind();
+        lightVBO.Unbind();
+        lightEBO.Unbind();
+
+        glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+        glm::vec3 lightPos = {0.5f, 0.5f, 0.5f};
+        glm::mat4 lightModel = glm::mat4(1.0f);
+        lightModel = glm::translate(lightModel, lightPos);
+        glm::vec3 pyramidPos = glm::vec3(0.0f, 0.0f, 0.0f);
+        glm::mat4 pyramidModel = glm::mat4(1.0f);
+        pyramidModel = glm::translate(pyramidModel, pyramidPos);
+
+        lightShader.Activate();
+        glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
+        sh.Activate();
+        glUniformMatrix4fv(glGetUniformLocation(sh.ID, "model"), 1, GL_FALSE, glm::value_ptr(pyramidModel));
 
 
         //TEXTURE
@@ -145,27 +168,39 @@ public:
 
         auto tex = Texture("../assets/textures/box.jpg", GL_TEXTURE_2D, GL_TEXTURE0,GL_RGB, GL_UNSIGNED_BYTE);
         tex.texUnit(sh,"tex0",0);
-        sh.Activate();
+
 
         float th = 0.0f;
         while(!glfwWindowShouldClose(window)){
 //            this->processInput();
-            camera.Inputs(window);
+
 
             //clear the screen with specified color
 
             glClearColor(0.07f,0.13f,0.17f, 1.0f); //color config
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            sh.Activate();
+            camera.Inputs(window);
+            camera.updateMatrix(45.0f, 0.1f, 100.0f);
 
-            camera.Matrix(45.0f, 0.1f, 100.0f, sh, "camMatrix");
+
+            sh.Activate();
+            camera.Matrix( sh, "camMatrix");
             //draw triangle
 
             tex.Bind();
             vao.Bind();
-
             glDrawElements(GL_TRIANGLES,sizeof(indices)/sizeof(int),GL_UNSIGNED_INT,nullptr);
-            glBindVertexArray(0);
+
+            lightShader.Activate();
+            camera.Matrix(lightShader, "camMatrix");
+            lightVAO.Bind();
+            glDrawElements(GL_TRIANGLES, sizeof(lightIndices)/sizeof(int), GL_UNSIGNED_INT, nullptr);
+
+
+
+//            glBindVertexArray(0);
+
+
 
 
             //swap front and back buffers
