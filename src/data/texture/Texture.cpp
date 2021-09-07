@@ -5,17 +5,18 @@
 #include "Texture.h"
 #include "../../../include/stb/stb_image.h"
 
-Texture::Texture(const char *image, GLenum texType, GLenum slot, GLenum format, GLenum pixelType, bool hasAlpha) {
+Texture::Texture(const char *image, GLenum texType, GLuint slot, GLenum format, GLenum pixelType, bool hasAlpha) {
     int widthImg, heightImg, numColCh;
     type = texType;
 
     //LOAD THE TEXTURE SOURCE IMAGE FLIPPED UPSIDE DOWN
     stbi_set_flip_vertically_on_load(true);
     unsigned char* bytes = stbi_load(image, &widthImg, &heightImg, &numColCh, 0);
-
+    std::cout << widthImg << std::endl;
     //generate texture and set it to be active on specified slot, also bind it to the type
     glGenTextures(1, &ID);
-    glActiveTexture(slot);
+    glActiveTexture(GL_TEXTURE0 + slot);
+    unit = slot;
     glBindTexture(texType, ID);
 
 
@@ -42,6 +43,7 @@ void Texture::texUnit(Shader& shader, const char *uniform, GLuint unit) {
 }
 
 void Texture::Bind() {
+    glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(type, ID);
 }
 

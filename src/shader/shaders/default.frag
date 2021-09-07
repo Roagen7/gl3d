@@ -6,7 +6,8 @@ in vec3 Normal;
 
 //out vec4 FragColor;
 
-uniform sampler2D tex0; // ??
+uniform sampler2D tex0;
+uniform sampler2D tex1;
 
 uniform vec4 lightColor;
 uniform vec3 lightPos;
@@ -16,7 +17,7 @@ void main()
 {
 //   FragColor = vec4(color, 1.0f);
    //PHONG
-   float ambient = 0.2f;
+   float ambient = 0.1f;
    float specularLight = 0.5f;
 
    //diffuse
@@ -31,5 +32,5 @@ void main()
 
 
 
-   gl_FragColor = texture(tex0, texCoord) * lightColor * (diffuse + ambient + specular);
+   gl_FragColor = texture(tex0, texCoord) * lightColor * (diffuse + ambient) + specular * texture(tex1, texCoord).r;
 }
