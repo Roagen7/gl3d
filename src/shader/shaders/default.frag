@@ -97,5 +97,5 @@ void main()
 
 
 
-   gl_FragColor = spotLight();
+   gl_FragColor = pointLight();
 }
