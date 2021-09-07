@@ -180,6 +180,7 @@ public:
         glUniform4f(glGetUniformLocation(sh.ID, "lightColor"), lightColor.x,lightColor.y,lightColor.z, lightColor.w);
         glUniform3f(glGetUniformLocation(sh.ID, "lightPos"), lightPos.x,lightPos.y,lightPos.z);
 
+
         //TEXTURE
         stbi_set_flip_vertically_on_load(true);
         int widthImg, heightImg, numColCh;
@@ -187,7 +188,7 @@ public:
 
 
         auto tex = Texture("../assets/textures/box.jpg", GL_TEXTURE_2D, GL_TEXTURE0,GL_RGB, GL_UNSIGNED_BYTE);
-        tex.texUnit(sh,"tex0",0);
+        tex.texUnit(sh,"tex0",0.0);
 
 
         float th = 0.0f;
@@ -204,6 +205,7 @@ public:
 
 
             sh.Activate();
+            glUniform3f(glGetUniformLocation(sh.ID,"camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
             camera.Matrix( sh, "camMatrix");
             //draw triangle
 
