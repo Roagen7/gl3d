@@ -13,17 +13,19 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "src/spatial/camera/Camera.h"
+#include "src/object/Mesh.h"
 
 
 const int width = 1920;
 const int height = 1080;
-GLfloat vertices[] =
-        { //     COORDINATES     /        COLORS        /    TexCoord    /       NORMALS     //
-                -1.0f, 0.0f,  1.0f,		0.0f, 0.0f, 0.0f,		0.0f, 0.0f,		0.0f, 1.0f, 0.0f,
-                -1.0f, 0.0f, -1.0f,		0.0f, 0.0f, 0.0f,		0.0f, 1.0f,		0.0f, 1.0f, 0.0f,
-                1.0f, 0.0f, -1.0f,		0.0f, 0.0f, 0.0f,		1.0f, 1.0f,		0.0f, 1.0f, 0.0f,
-                1.0f, 0.0f,  1.0f,		0.0f, 0.0f, 0.0f,		1.0f, 0.0f,		0.0f, 1.0f, 0.0f
+Vertex vertices[] =
+        { //               COORDINATES           /            COLORS          /           TexCoord         /       NORMALS         //
+                Vertex{glm::vec3(-1.0f, 0.0f,  1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
+                Vertex{glm::vec3(-1.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
+                Vertex{glm::vec3( 1.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
+                Vertex{glm::vec3( 1.0f, 0.0f,  1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)}
         };
+
 
 // Indices for vertices order
 GLuint indices[] =
@@ -31,20 +33,21 @@ GLuint indices[] =
                 0, 1, 2,
                 0, 2, 3
         };
-
-
-GLfloat lightVertices[] = { //     COORDINATES     //
-                -0.1f, -0.1f,  0.1f,
-                -0.1f, -0.1f, -0.1f,
-                0.1f, -0.1f, -0.1f,
-                0.1f, -0.1f,  0.1f,
-                -0.1f,  0.1f,  0.1f,
-                -0.1f,  0.1f, -0.1f,
-                0.1f,  0.1f, -0.1f,
-                0.1f,  0.1f,  0.1f
+Vertex lightVertices[] =
+        { //     COORDINATES     //
+                Vertex{glm::vec3(-0.1f, -0.1f,  0.1f)},
+                Vertex{glm::vec3(-0.1f, -0.1f, -0.1f)},
+                Vertex{glm::vec3(0.1f, -0.1f, -0.1f)},
+                Vertex{glm::vec3(0.1f, -0.1f,  0.1f)},
+                Vertex{glm::vec3(-0.1f,  0.1f,  0.1f)},
+                Vertex{glm::vec3(-0.1f,  0.1f, -0.1f)},
+                Vertex{glm::vec3(0.1f,  0.1f, -0.1f)},
+                Vertex{glm::vec3(0.1f,  0.1f,  0.1f)}
         };
 
-GLuint lightIndices[] = {
+
+GLuint lightIndices[] =
+        {
                 0, 1, 2,
                 0, 2, 3,
                 0, 4, 7,
@@ -58,6 +61,7 @@ GLuint lightIndices[] = {
                 4, 5, 6,
                 4, 6, 7
         };
+
 
 
 class App {
@@ -103,44 +107,32 @@ public:
         //init camera
         Camera camera(width, height,{0.0f,0.0f,2.0f});
 
-
+        Texture textures[]
+                {
+                        Texture("../assets/textures/planks.png", "diffuse", 0, GL_RGBA, GL_UNSIGNED_BYTE),
+                        Texture("../assets/textures/planksSpec.png", "specular", 1, GL_RED, GL_UNSIGNED_BYTE)
+                };
 
         //shader and data initialization
         auto sh = Shader("../src/shader/shaders/default.vert","../src/shader/shaders/default.frag");
-
         //create vao and bind it
-        auto vao = VAO();
+        std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
+        std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
+        std::vector <Texture> tex(textures, textures + sizeof(textures) / sizeof(Texture));
+        // Create floor mesh
+        Mesh floor(verts, ind, tex);
 
-        vao.Bind();
 
-        //create vbo and ebo for vao
-        auto vbo = VBO(vertices,sizeof(vertices));
-        auto ebo = EBO(indices, sizeof(indices));
-
-        //link vbo attributes to vao
-        vao.LinkAttribs(vbo, 0, 3, GL_FLOAT, 11 * sizeof(float), (void*)nullptr);
-        vao.LinkAttribs(vbo, 1, 3, GL_FLOAT, 11 * sizeof(float), (void*) (3 * sizeof(float))); //set it to layout 1 to access it in shader
-        vao.LinkAttribs(vbo, 2, 2, GL_FLOAT, 11 * sizeof(float), (void*) (6 * sizeof(float)));
-        vao.LinkAttribs(vbo, 3, 3 , GL_FLOAT, 11 * sizeof(float), (void*) (8 * sizeof(float)));
-
-        vao.Unbind();
-        vbo.Unbind();
-        ebo.Unbind();
 
         Shader lightShader("../src/shader/shaders/light.vert", "../src/shader/shaders/light.frag");
+        // Store mesh data in vectors for the mesh
+        std::vector <Vertex> lightVerts(lightVertices, lightVertices + sizeof(lightVertices) / sizeof(Vertex));
+        std::vector <GLuint> lightInd(lightIndices, lightIndices + sizeof(lightIndices) / sizeof(GLuint));
+        // Crate light mesh
+        Mesh light(lightVerts, lightInd, tex);
 
-        auto lightVAO = VAO();
-        lightVAO.Bind();
-        VBO lightVBO(lightVertices, sizeof(lightVertices));
-        EBO lightEBO(lightIndices, sizeof(lightIndices));
-
-        lightVAO.LinkAttribs(lightVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)nullptr);
-        lightVAO.Unbind();
-        lightVBO.Unbind();
-        lightEBO.Unbind();
 
         glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-
         glm::vec3 lightPos = {0.5f, 0.5f, 0.5f};
         glm::mat4 lightModel = glm::mat4(1.0f);
         lightModel = glm::translate(lightModel, lightPos);
@@ -158,18 +150,7 @@ public:
         glUniform3f(glGetUniformLocation(sh.ID, "lightPos"), lightPos.x,lightPos.y,lightPos.z);
 
 
-        //TEXTURE
-        stbi_set_flip_vertically_on_load(true);
-        int widthImg, heightImg, numColCh;
-        unsigned char* bytes = stbi_load("../assets/textures/box.jpg", &widthImg, &heightImg, &numColCh, 0);
 
-
-        auto tex = Texture("../assets/textures/planks.png", GL_TEXTURE_2D, 0,GL_RGBA, GL_UNSIGNED_BYTE);
-        tex.texUnit(sh,"tex0",0);
-        Texture texSpec("../assets/textures/planksSpec.png", GL_TEXTURE_2D, 1, GL_RED, GL_UNSIGNED_BYTE);
-        texSpec.texUnit(sh, "tex1", 1);
-
-        float th = 0.0f;
         while(!glfwWindowShouldClose(window)){
 //            this->processInput();
 
@@ -181,43 +162,19 @@ public:
             camera.Inputs(window);
             camera.updateMatrix(45.0f, 0.1f, 100.0f);
 
-
-            sh.Activate();
-            glUniform3f(glGetUniformLocation(sh.ID,"camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
-            camera.Matrix( sh, "camMatrix");
-            //draw triangle
-
-            tex.Bind();
-            texSpec.Bind();
-            vao.Bind();
-            glDrawElements(GL_TRIANGLES,sizeof(indices)/sizeof(int),GL_UNSIGNED_INT,nullptr);
-
-            lightShader.Activate();
-            camera.Matrix(lightShader, "camMatrix");
-            lightVAO.Bind();
-            glDrawElements(GL_TRIANGLES, sizeof(lightIndices)/sizeof(int), GL_UNSIGNED_INT, nullptr);
-
-
-
-//            glBindVertexArray(0);
-
-
-
-
+            floor.Draw(sh, camera);
+            light.Draw(lightShader, camera);
             //swap front and back buffers
             glfwSwapBuffers(window);
 
             //make the window responsive to input
             glfwPollEvents();
 
-
         }
 
-        vao.Delete();
-        vbo.Delete();
-        ebo.Delete();
+
         sh.Delete();
-        tex.Delete();
+        lightShader.Delete();
 //        glDeleteTextures(1,&texture);
         glfwDestroyWindow(window);
         glfwTerminate();

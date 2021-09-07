@@ -10,6 +10,13 @@ VBO::VBO(GLfloat *vertices, GLsizeiptr size) {
     glBufferData(GL_ARRAY_BUFFER,size, vertices, GL_STATIC_DRAW); //tell graphics card that the data won't be frequently modified
 }
 
+VBO::VBO(std::vector<Vertex>& vertices) {
+    glGenBuffers(1,&ID);
+    glBindBuffer(GL_ARRAY_BUFFER, ID);
+    glBufferData(GL_ARRAY_BUFFER,vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+}
+
+
 void VBO::Bind() {
     glBindBuffer(GL_ARRAY_BUFFER,ID);
 }
@@ -21,3 +28,4 @@ void VBO::Unbind() {
 void VBO::Delete() {
     glDeleteBuffers(1, &ID);
 }
+

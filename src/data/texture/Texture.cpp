@@ -5,7 +5,7 @@
 #include "Texture.h"
 #include "../../../include/stb/stb_image.h"
 
-Texture::Texture(const char *image, GLenum texType, GLuint slot, GLenum format, GLenum pixelType, bool hasAlpha) {
+Texture::Texture(const char *image, const char* texType, GLuint slot, GLenum format, GLenum pixelType, bool hasAlpha) {
     int widthImg, heightImg, numColCh;
     type = texType;
 
@@ -17,7 +17,7 @@ Texture::Texture(const char *image, GLenum texType, GLuint slot, GLenum format, 
     glGenTextures(1, &ID);
     glActiveTexture(GL_TEXTURE0 + slot);
     unit = slot;
-    glBindTexture(texType, ID);
+    glBindTexture(GL_TEXTURE_2D, ID);
 
 
     //SETTINGS
@@ -26,12 +26,12 @@ Texture::Texture(const char *image, GLenum texType, GLuint slot, GLenum format, 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    glTexImage2D(texType, 0 ,GL_RGB, widthImg, heightImg, 0, format, pixelType, bytes);
-    glGenerateMipmap(texType);
+    glTexImage2D(GL_TEXTURE_2D, 0 ,GL_RGB, widthImg, heightImg, 0, format, pixelType, bytes);
+    glGenerateMipmap(GL_TEXTURE_2D);
 
     // free the memory and unbind the texture
     stbi_image_free(bytes);
-    glBindTexture(texType, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Texture::texUnit(Shader& shader, const char *uniform, GLuint unit) {
@@ -44,11 +44,11 @@ void Texture::texUnit(Shader& shader, const char *uniform, GLuint unit) {
 
 void Texture::Bind() {
     glActiveTexture(GL_TEXTURE0 + unit);
-    glBindTexture(type, ID);
+    glBindTexture(GL_TEXTURE_2D, ID);
 }
 
 void Texture::Unbind() {
-    glBindTexture(type, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Texture::Delete() {
