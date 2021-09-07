@@ -36,7 +36,7 @@ Texture::Texture(const char *image, const char* texType, GLuint slot, GLenum for
 
 void Texture::texUnit(Shader& shader, const char *uniform, GLuint unit) {
     // specify the tex0
-
+    //uniform = diffuse0 / specular0
     GLuint texUni = glGetUniformLocation(shader.ID, uniform);
     shader.Activate();
     glUniform1i(texUni, unit);

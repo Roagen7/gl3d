@@ -106,42 +106,46 @@ public:
     void run(){
         //init camera
         Camera camera(width, height,{0.0f,0.0f,2.0f});
-
+        //init vertices, indices, textures etc...  order is pos, normal, color, texture
         Texture textures[]
                 {
                         Texture("../assets/textures/planks.png", "diffuse", 0, GL_RGBA, GL_UNSIGNED_BYTE),
                         Texture("../assets/textures/planksSpec.png", "specular", 1, GL_RED, GL_UNSIGNED_BYTE)
                 };
-
-        //shader and data initialization
-        auto sh = Shader("../src/shader/shaders/default.vert","../src/shader/shaders/default.frag");
-        //create vao and bind it
         std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
         std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
         std::vector <Texture> tex(textures, textures + sizeof(textures) / sizeof(Texture));
-        // Create floor mesh
-        Mesh floor(verts, ind, tex);
-
-
-
-        Shader lightShader("../src/shader/shaders/light.vert", "../src/shader/shaders/light.frag");
-        // Store mesh data in vectors for the mesh
         std::vector <Vertex> lightVerts(lightVertices, lightVertices + sizeof(lightVertices) / sizeof(Vertex));
         std::vector <GLuint> lightInd(lightIndices, lightIndices + sizeof(lightIndices) / sizeof(GLuint));
-        // Crate light mesh
+
+        // init shaders
+        Shader sh("../src/shader/shaders/default.vert","../src/shader/shaders/default.frag");
+        Shader lightShader("../src/shader/shaders/light.vert", "../src/shader/shaders/light.frag");
+
+        //init meshes
+        Mesh floor(verts, ind, tex);
         Mesh light(lightVerts, lightInd, tex);
 
 
+
+        //light attribs
         glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-        glm::vec3 lightPos = {0.5f, 0.5f, 0.5f};
+
+
+        glm::vec3 lightPos = {0.5f, 0.5f, 0.0f};
         glm::mat4 lightModel = glm::mat4(1.0f);
-        lightModel = glm::translate(lightModel, lightPos);
+//        lightModel = glm::rotate(lightModel, 0.4f, glm::vec3(1.0, 0.0,0.0));
+//        lightModel = glm::translate(lightModel, lightPos);
+        light.model = glm::translate(lightModel, lightPos);
 
         glm::vec3 pyramidPos = glm::vec3(0.0f, 0.0f, 0.0f);
         glm::mat4 pyramidModel = glm::mat4(1.0f);
         pyramidModel = glm::translate(pyramidModel, pyramidPos);
 
+
+        //pass light color, light transformation and object transformation to shaders
         lightShader.Activate();
+
         glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
         glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x,lightColor.y,lightColor.z, lightColor.w);
         sh.Activate();
@@ -149,12 +153,10 @@ public:
         glUniform4f(glGetUniformLocation(sh.ID, "lightColor"), lightColor.x,lightColor.y,lightColor.z, lightColor.w);
         glUniform3f(glGetUniformLocation(sh.ID, "lightPos"), lightPos.x,lightPos.y,lightPos.z);
 
-
+        float th = 0.1;
 
         while(!glfwWindowShouldClose(window)){
 //            this->processInput();
-
-
             //clear the screen with specified color
 
             glClearColor(0.07f,0.13f,0.17f, 1.0f); //color config
@@ -162,14 +164,21 @@ public:
             camera.Inputs(window);
             camera.updateMatrix(45.0f, 0.1f, 100.0f);
 
+            //draw( shader to use, camera to use)
+            light.model = glm::translate(glm::mat4(1.0f), lightPos);
+            light.model = glm::rotate(light.model, th, {0.0, 1.0, 0.0});
+//            floor.model = glm::rotate(glm::mat4(1.0f), th, {1.0, 0.0, 0.0});
+            floor.model = glm::translate(glm::mat4(1.0f), {th, 0,0});
+
             floor.Draw(sh, camera);
             light.Draw(lightShader, camera);
             //swap front and back buffers
-            glfwSwapBuffers(window);
 
+
+            glfwSwapBuffers(window);
             //make the window responsive to input
             glfwPollEvents();
-
+            th += 0.01;
         }
 
 
