@@ -110,8 +110,8 @@ public:
         //init vertices, indices, textures etc...  order is pos, normal, color, texture
         Texture textures[]
                 {
-                        Texture("../assets/textures/planks.png", "diffuse", 0, GL_RGBA, GL_UNSIGNED_BYTE),
-                        Texture("../assets/textures/planksSpec.png", "specular", 1, GL_RED, GL_UNSIGNED_BYTE)
+                        Texture("../assets/textures/planks.png", "diffuse", 0),
+                        Texture("../assets/textures/planksSpec.png", "specular", 1)
                 };
 
         // static array -> vector
@@ -176,8 +176,8 @@ public:
 
 
             //draw( shader to use, camera to use)
-            floor.Draw(sh, camera);
-            light.Draw(lightShader, camera);
+            floor.Draw(sh, camera, glm::mat4({1.0f}));
+            light.Draw(lightShader, camera,  glm::rotate(light.model, th, {0.0, 1.0, 1.0}));
 
             //swap front and back buffers
             glfwSwapBuffers(window);

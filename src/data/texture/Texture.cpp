@@ -5,7 +5,7 @@
 #include "Texture.h"
 #include "../../../include/stb/stb_image.h"
 
-Texture::Texture(const char *image, const char* texType, GLuint slot, GLenum format, GLenum pixelType, bool hasAlpha) {
+Texture::Texture(const char *image, const char* texType, GLuint slot) {
     int widthImg, heightImg, numColCh;
     type = texType;
 
@@ -26,7 +26,11 @@ Texture::Texture(const char *image, const char* texType, GLuint slot, GLenum for
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    glTexImage2D(GL_TEXTURE_2D, 0 ,GL_RGB, widthImg, heightImg, 0, format, pixelType, bytes);
+    if(numColCh == 4) glTexImage2D(GL_TEXTURE_2D, 0 ,GL_RGBA, widthImg, heightImg, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+    else if(numColCh == 3) glTexImage2D(GL_TEXTURE_2D, 0 ,GL_RGBA, widthImg, heightImg, 0, GL_RGB, GL_UNSIGNED_BYTE, bytes);
+    else if(numColCh == 1) glTexImage2D(GL_TEXTURE_2D, 0 ,GL_RGBA, widthImg, heightImg, 0, GL_RED, GL_UNSIGNED_BYTE, bytes);
+    else throw std::invalid_argument("Texture type recognition failed");
+//    glTexImage2D(GL_TEXTURE_2D, 0 ,GL_RGB, widthImg, heightImg, 0, format, pixelType, bytes);
     glGenerateMipmap(GL_TEXTURE_2D);
 
     // free the memory and unbind the texture

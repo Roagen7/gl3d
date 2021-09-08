@@ -6,8 +6,12 @@
 #define UNTITLED4_NODE_H
 
 
-class Node {
+#include "../../../object/Mesh.h"
 
+class Node {
+public:
+    std::vector<Node*> children;
+    std::vector<Mesh*> meshes;
 };
 
 
