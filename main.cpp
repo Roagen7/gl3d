@@ -121,10 +121,17 @@ public:
         std::vector <Vertex> lightVerts(lightVertices, lightVertices + sizeof(lightVertices) / sizeof(Vertex));
         std::vector <GLuint> lightInd(lightIndices, lightIndices + sizeof(lightIndices) / sizeof(GLuint));
         // init shaders
-        Shader sh("../src/shader/shaders/mesh/tex_spec/vs.glsl","../src/shader/shaders/mesh/tex_spec/fs.glsl");
-        Shader lightShader("../src/shader/shaders/light/lamp/vs.glsl", "../src/shader/shaders/light/lamp/fs.glsl");
+        Shader sh_tex_spec("../src/shader/shaders/mesh/tex_spec/vs.glsl","../src/shader/shaders/mesh/tex_spec/fs.glsl");
+        Shader sh_tex("../src/shader/shaders/mesh/tex/vs.glsl","../src/shader/shaders/mesh/tex/fs.glsl");
+        Shader sh_lamp("../src/shader/shaders/light/lamp/vs.glsl", "../src/shader/shaders/light/lamp/fs.glsl");
 
         //init meshes
+
+        std::vector <Vertex> vis;
+        std::vector<GLuint> is;
+        Mesh::fromObjFile("../assets/objs/hammer.obj",vis,is);
+
+
         Mesh floor(verts, ind, tex);
         Mesh light(lightVerts, lightInd, tex);
 
@@ -146,14 +153,14 @@ public:
 
 
         //pass light color, light transformation and object transformation to shaders
-        lightShader.Activate();
+        sh_lamp.Activate();
 
 //        glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
-        glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x,lightColor.y,lightColor.z, lightColor.w);
-        sh.Activate();
+        glUniform4f(glGetUniformLocation(sh_lamp.ID, "lightColor"), lightColor.x,lightColor.y,lightColor.z, lightColor.w);
+        sh_tex_spec.Activate();
 //        glUniformMatrix4fv(glGetUniformLocation(sh.ID, "model"), 1, GL_FALSE, glm::value_ptr(pyramidModel));
-        glUniform4f(glGetUniformLocation(sh.ID, "lightColor"), lightColor.x,lightColor.y,lightColor.z, lightColor.w);
-        glUniform3f(glGetUniformLocation(sh.ID, "lightPos"), lightPos.x,lightPos.y,lightPos.z);
+        glUniform4f(glGetUniformLocation(sh_tex_spec.ID, "lightColor"), lightColor.x,lightColor.y,lightColor.z, lightColor.w);
+        glUniform3f(glGetUniformLocation(sh_tex_spec.ID, "lightPos"), lightPos.x,lightPos.y,lightPos.z);
 
         float th = 0.1;
 
@@ -173,8 +180,8 @@ public:
             light.model = glm::rotate(light.model, th, {0.0, 1.0, 1.0});
 
             //draw( shader to use, camera to use)
-            floor.Draw(sh, camera, glm::mat4({1.0f}));
-            light.Draw(lightShader, camera,  glm::rotate(light.model, th, {0.0, 1.0, 1.0}));
+            floor.Draw(sh_tex_spec, camera, glm::mat4(1.0f));
+            light.Draw(sh_lamp, camera,  glm::rotate(light.model, th, {0.0, 1.0, 1.0}));
 
             //swap front and back buffers
             glfwSwapBuffers(window);
@@ -184,8 +191,9 @@ public:
         }
 
 
-        sh.Delete();
-        lightShader.Delete();
+        sh_tex.Delete();
+        sh_tex_spec.Delete();
+        sh_lamp.Delete();
 //        glDeleteTextures(1,&texture);
         glfwDestroyWindow(window);
         glfwTerminate();

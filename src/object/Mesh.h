@@ -34,7 +34,7 @@ public:
               glm::vec3 scale = {1.0f,1.0f,1.0f});
 
 
-    static Mesh fromObjFile(std::string filename);
+    static void fromObjFile(std::string filename, std::vector<Vertex> &vs, std::vector<GLuint> &ids, bool hasTexture = false);
 };
 
 

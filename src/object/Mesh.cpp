@@ -70,84 +70,97 @@ void Mesh::Draw(Shader &shader, Camera &camera,  glm::mat4 matrix,
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
 
-Mesh Mesh::fromObjFile(std::string filename) {
+
+
+
+
+void Mesh::fromObjFile(std::string filename, std::vector<Vertex> &vs, std::vector<GLuint> &ids, bool hasTexture)  {
     std::ifstream input(filename);
     if(!input.is_open()){
         std::cout << "[ERROR] COULDN'T OPEN FILE " + filename << std::endl;
-        return {};
+        return ;
     }
 //
 //    int lineCount = 1;
 //
-//    std::vector<Vertex> vertices;
-//
-//
-//
-//
-//    std::vector<sf::Vector3<double>> vs;
-//    std::vector<sf::Vector2<double>> ts;
-//
-//    while(!input.eof()){
-//        char x[128];
-//        input.getline(x, 128);
-//        std::strstream l;
-//        l << x;
-//        char trash;
-//
-//        if(x[0] == 'v' && x[1] != 'n' && x[1] != 't'){
-//            sf::Vector3<double> v;
-//            l >> trash >> v.x >> v.y >> v.z;
-//            vs.push_back(v);
-//
-//        } else if(x[0] == 'v' && x[1] == 't'){
-//
-//
-//            sf::Vector2<double> t;
-//            l >> trash >>trash>> t.x >> t.y;
-//
-//
-////            t.x = 1.0 - t.x;
-//            t.y = 1.0 - t.y;
-//            ts.push_back(t);
-//
-//        } else if(x[0] == 'f' ){
-//                l >> trash;
-//
-//                std::string tokens[6];
-//                int tokenCount = -1;
-//
-//
-//                while (!l.eof())
-//                {
-//
-//                    char c = l.get();
-////                    std::cout << "tuta" << std::endl;
-//                    if (c == ' ' || c == '/')
-//                        tokenCount++;
-//                    else
-//                        tokens[tokenCount].append(1, c);
-//                }
-//
-//
-//                tokens[tokenCount].pop_back();
-//
-//                //            std::cout << ts[stoi(tokens[1]) - 1].x << std::endl;
-//                //            std::cout << tokens[0] <<"/" << tokens[1] <<" " << tokens[2] << "/" << tokens[3] << " " <<tokens[4] <<  "/"<<tokens[5] << std::endl;
-//
-//
-//
-//                m.triangles.emplace_back( vs[stoi(tokens[0]) - 1], vs[stoi(tokens[2]) - 1], vs[stoi(tokens[4]) - 1],
-//                                          ts[stoi(tokens[1]) - 1], ts[stoi(tokens[3]) - 1], ts[stoi(tokens[5]) - 1]);
-//
-//            }
-//        }
-//        lineCount++;
-//    }
-////    std::cout << ts.size() << std::endl;
-//    return m;
-//
-//
-//
-//
-//    return {};
+    std::vector<glm::vec3> cachedPos;
+    std::vector<glm::vec3> cachedNorm;
+    std::vector<glm::vec2> cachedTexs;
+
+    while(!input.eof()){
+        char x[128];
+        char trash;
+        std::strstream l;
+
+        input.getline(x,128);
+        l << x;
+        if(x[0] == 'v'){
+            if(x[1] == 'n'){
+                //normal
+                glm::vec3 v;
+                l >> trash >> v.x >> v.y >> v.z;
+                cachedNorm.push_back(v);
+            } else if(x[1] == 't'){
+                //texture
+                glm::vec2 v;
+                l >> trash >> v.x >> v.y;
+                cachedTexs.push_back(v);
+            } else {
+                //position
+                glm::vec3 v;
+                l >> trash >> v.x >> v.y >> v.z;
+                cachedPos.push_back(v);
+            }
+
+        } else if(x[0] == 'f'){
+            //face
+            l >> trash;
+            std::string tokens[9];
+            int tokenCount = -1;
+
+
+            while (!l.eof()){
+
+                char c = l.get();
+
+                if (c == ' ' || c == '/')
+                    tokenCount++;
+                else
+                    tokens[tokenCount].append(1, c);
+            }
+
+            //v1/vt1/vn1
+            tokens[tokenCount].pop_back();
+            //v1[tokens[0] - 1]
+            glm::vec3 pos1 = cachedPos[stoi(tokens[0]) - 1];
+            glm::vec3 pos2 = cachedPos[stoi(tokens[3]) - 1];
+            glm::vec3 pos3 = cachedPos[stoi(tokens[6]) - 1];
+
+            glm::vec2 tex1 = cachedTexs[stoi(tokens[1]) - 1];
+            glm::vec2 tex2 = cachedTexs[stoi(tokens[4]) - 1];
+            glm::vec2 tex3 = cachedTexs[stoi(tokens[7]) - 1];
+
+            glm::vec3 norm1 = cachedNorm[stoi(tokens[2]) - 1];
+            glm::vec3 norm2 = cachedNorm[stoi(tokens[5]) - 1];
+            glm::vec3 norm3 = cachedNorm[stoi(tokens[8]) - 1];
+
+            Vertex v1{}, v2{}, v3{};
+            v1.position = pos1; v1.normal = norm1; v1.color = {1.0, 1.0, 1.0}; v1.texUV = tex1;
+            v2.position = pos2; v2.normal = norm2; v2.color = {1.0, 1.0, 1.0}; v2.texUV = tex2;
+            v3.position = pos3; v3.normal = norm3; v3.color = {1.0, 1.0, 1.0}; v3.texUV = tex1;
+
+            vs.push_back(v1);
+            ids.push_back(vs.size() - 1);
+            vs.push_back(v2);
+            ids.push_back(vs.size() - 1);
+            vs.push_back(v3);
+            ids.push_back(vs.size() - 1);
+        }
+
+
+
+
+    }
+
+
 }
