@@ -14,7 +14,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "src/spatial/camera/Camera.h"
 #include "src/object/Mesh.h"
-
+#include "src/object/Model.h"
 
 
 const int width = 1920;
@@ -120,10 +120,9 @@ public:
         std::vector <Texture> tex(textures, textures + sizeof(textures) / sizeof(Texture));
         std::vector <Vertex> lightVerts(lightVertices, lightVertices + sizeof(lightVertices) / sizeof(Vertex));
         std::vector <GLuint> lightInd(lightIndices, lightIndices + sizeof(lightIndices) / sizeof(GLuint));
-
         // init shaders
-        Shader sh("../src/shader/shaders/default.vert","../src/shader/shaders/default.frag");
-        Shader lightShader("../src/shader/shaders/light.vert", "../src/shader/shaders/light.frag");
+        Shader sh("../src/shader/shaders/mesh/tex_spec/vs.glsl","../src/shader/shaders/mesh/tex_spec/fs.glsl");
+        Shader lightShader("../src/shader/shaders/light/lamp/vs.glsl", "../src/shader/shaders/light/lamp/fs.glsl");
 
         //init meshes
         Mesh floor(verts, ind, tex);
@@ -149,14 +148,15 @@ public:
         //pass light color, light transformation and object transformation to shaders
         lightShader.Activate();
 
-        glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
+//        glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
         glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x,lightColor.y,lightColor.z, lightColor.w);
         sh.Activate();
-        glUniformMatrix4fv(glGetUniformLocation(sh.ID, "model"), 1, GL_FALSE, glm::value_ptr(pyramidModel));
+//        glUniformMatrix4fv(glGetUniformLocation(sh.ID, "model"), 1, GL_FALSE, glm::value_ptr(pyramidModel));
         glUniform4f(glGetUniformLocation(sh.ID, "lightColor"), lightColor.x,lightColor.y,lightColor.z, lightColor.w);
         glUniform3f(glGetUniformLocation(sh.ID, "lightPos"), lightPos.x,lightPos.y,lightPos.z);
 
         float th = 0.1;
+
 
         while(!glfwWindowShouldClose(window)){
 //            this->processInput();
@@ -171,9 +171,6 @@ public:
             th += 0.01;
             light.model = glm::translate(glm::mat4(1.0f), lightPos);
             light.model = glm::rotate(light.model, th, {0.0, 1.0, 1.0});
-//            floor.model = glm::rotate(glm::mat4(1.0f), th, {1.0, 0.0, 0.0});
-//            floor.model = glm::translate(glm::mat4(1.0f), {th, 0,0});
-
 
             //draw( shader to use, camera to use)
             floor.Draw(sh, camera, glm::mat4({1.0f}));

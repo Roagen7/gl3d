@@ -24,6 +24,7 @@ public:
 
 
     VAO vao;
+    Mesh();
     Mesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vector<Texture>& textures);
     void Draw(Shader& shader,
               Camera& camera,
@@ -31,6 +32,9 @@ public:
               glm::vec3 translation = {0.0,0.0,0.0},
               glm::quat rotation = {1.0f, 0.0f, 0.0f, 0.0f},
               glm::vec3 scale = {1.0f,1.0f,1.0f});
+
+
+    static Mesh fromObjFile(std::string filename);
 };
 
 

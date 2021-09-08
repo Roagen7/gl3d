@@ -12,7 +12,7 @@ Texture::Texture(const char *image, const char* texType, GLuint slot) {
     //LOAD THE TEXTURE SOURCE IMAGE FLIPPED UPSIDE DOWN
     stbi_set_flip_vertically_on_load(true);
     unsigned char* bytes = stbi_load(image, &widthImg, &heightImg, &numColCh, 0);
-    std::cout << widthImg << std::endl;
+
     //generate texture and set it to be active on specified slot, also bind it to the type
     glGenTextures(1, &ID);
     glActiveTexture(GL_TEXTURE0 + slot);

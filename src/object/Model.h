@@ -19,6 +19,8 @@ class Model
 public:
     // Loads in a model from a file and stores tha information in 'data', 'JSON', and 'file'
     Model(const char* file);
+    std::vector<Mesh> meshes;
+    std::vector<glm::mat4> matricesMeshes;
 
     void Draw(Shader& shader, Camera& camera);
 
@@ -29,11 +31,11 @@ private:
     json JSON;
 
     // All the meshes and transformations
-    std::vector<Mesh> meshes;
+
     std::vector<glm::vec3> translationsMeshes;
     std::vector<glm::quat> rotationsMeshes;
     std::vector<glm::vec3> scalesMeshes;
-    std::vector<glm::mat4> matricesMeshes;
+
 
     // Prevents textures from being loaded twice
     std::vector<std::string> loadedTexName;
