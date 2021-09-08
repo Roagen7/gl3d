@@ -24,6 +24,10 @@ public:
     void Delete();
 
     void compileErrors(unsigned int shader, const char* type);
+    void setVec3(const char* name, float x, float y, float z);
+    void setVec4(const char* name, float x, float y, float z, float w);
+    void setMat4(const char* name, GLfloat* value);
+
 };
 
 

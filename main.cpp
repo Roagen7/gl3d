@@ -153,20 +153,14 @@ public:
         pyramidModel = glm::translate(pyramidModel, pyramidPos);
 
 
-        //pass light color, light transformation and object transformation to shaders
-        sh_lamp.Activate();
+        sh_lamp.setVec4("lightColor", lightColor.x,lightColor.y,lightColor.z, lightColor.w);
 
-//        glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
-        glUniform4f(glGetUniformLocation(sh_lamp.ID, "lightColor"), lightColor.x,lightColor.y,lightColor.z, lightColor.w);
-        sh_tex_spec.Activate();
-//        glUniformMatrix4fv(glGetUniformLocation(sh.ID, "model"), 1, GL_FALSE, glm::value_ptr(pyramidModel));
-        glUniform4f(glGetUniformLocation(sh_tex_spec.ID, "lightColor"), lightColor.x,lightColor.y,lightColor.z, lightColor.w);
-        glUniform3f(glGetUniformLocation(sh_tex_spec.ID, "lightPos"), lightPos.x,lightPos.y,lightPos.z);
+        sh_tex_spec.setVec4("lightColor", lightColor.x,lightColor.y,lightColor.z, lightColor.w);
+        sh_tex_spec.setVec3("lightPos", lightPos.x,lightPos.y,lightPos.z);
 
+        sh_col.setVec4("lightColor", lightColor.x,lightColor.y,lightColor.z, lightColor.w);
+        sh_col.setVec3("lightPos", lightPos.x,lightPos.y,lightPos.z);
 
-        sh_col.Activate();
-        glUniform4f(glGetUniformLocation(sh_col.ID, "lightColor"), lightColor.x,lightColor.y,lightColor.z, lightColor.w);
-        glUniform3f(glGetUniformLocation(sh_col.ID, "lightPos"), lightPos.x,lightPos.y,lightPos.z);
 
         float th = 0.1;
 
@@ -182,9 +176,12 @@ public:
 
 
             th += 0.01;
+//            light.model = glm::translate(glm::mat4(1.0f), lightPos);
             light.model = glm::translate(glm::mat4(1.0f), lightPos);
             light.model = glm::rotate(light.model, th, {0.0, 1.0, 1.0});
-
+//            lightPos.x = th;
+            sh_tex_spec.setVec3("lightPos", lightPos.x,lightPos.y,lightPos.z);
+            sh_col.setVec3("lightPos", lightPos.x,lightPos.y,lightPos.z);
             //draw( shader to use, camera to use)
             hammer.Draw(sh_col, camera, glm::translate(glm::mat4(1.0f), {0.0, 0.0, -4.0}));
             floor.Draw(sh_tex_spec, camera, glm::mat4(1.0f));

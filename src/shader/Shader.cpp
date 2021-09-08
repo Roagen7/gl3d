@@ -106,3 +106,18 @@ void Shader::compileErrors(unsigned int shader, const char *type) {
 
     }
 }
+
+void Shader::setVec3(const char *name, float x, float y, float z) {
+    this->Activate();
+    glUniform3f(glGetUniformLocation(this->ID, name),x,y,z);
+}
+
+void Shader::setVec4(const char *name, float x, float y, float z, float w) {
+    this->Activate();
+    glUniform4f(glGetUniformLocation(this->ID, name),x,y,z,w);
+}
+
+void Shader::setMat4(const char *name, GLfloat *value) {
+    this->Activate();
+    glUniformMatrix4fv(glGetUniformLocation(this->ID, name),1,GL_FALSE,value);
+}
