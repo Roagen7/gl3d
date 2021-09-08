@@ -121,6 +121,7 @@ public:
         std::vector <Vertex> lightVerts(lightVertices, lightVertices + sizeof(lightVertices) / sizeof(Vertex));
         std::vector <GLuint> lightInd(lightIndices, lightIndices + sizeof(lightIndices) / sizeof(GLuint));
         // init shaders
+        Shader sh_col("../src/shader/shaders/mesh/col/vs.glsl", "../src/shader/shaders/mesh/col/fs.glsl");
         Shader sh_tex_spec("../src/shader/shaders/mesh/tex_spec/vs.glsl","../src/shader/shaders/mesh/tex_spec/fs.glsl");
         Shader sh_tex("../src/shader/shaders/mesh/tex/vs.glsl","../src/shader/shaders/mesh/tex/fs.glsl");
         Shader sh_lamp("../src/shader/shaders/light/lamp/vs.glsl", "../src/shader/shaders/light/lamp/fs.glsl");
@@ -130,8 +131,8 @@ public:
         std::vector <Vertex> vis;
         std::vector<GLuint> is;
         Mesh::fromObjFile("../assets/objs/hammer.obj",vis,is);
-
-
+        std::vector<Texture> empty = {};
+        Mesh hammer(vis, is, empty);
         Mesh floor(verts, ind, tex);
         Mesh light(lightVerts, lightInd, tex);
 
@@ -162,6 +163,11 @@ public:
         glUniform4f(glGetUniformLocation(sh_tex_spec.ID, "lightColor"), lightColor.x,lightColor.y,lightColor.z, lightColor.w);
         glUniform3f(glGetUniformLocation(sh_tex_spec.ID, "lightPos"), lightPos.x,lightPos.y,lightPos.z);
 
+
+        sh_col.Activate();
+        glUniform4f(glGetUniformLocation(sh_col.ID, "lightColor"), lightColor.x,lightColor.y,lightColor.z, lightColor.w);
+        glUniform3f(glGetUniformLocation(sh_col.ID, "lightPos"), lightPos.x,lightPos.y,lightPos.z);
+
         float th = 0.1;
 
 
@@ -180,6 +186,7 @@ public:
             light.model = glm::rotate(light.model, th, {0.0, 1.0, 1.0});
 
             //draw( shader to use, camera to use)
+            hammer.Draw(sh_col, camera, glm::translate(glm::mat4(1.0f), {0.0, 0.0, -4.0}));
             floor.Draw(sh_tex_spec, camera, glm::mat4(1.0f));
             light.Draw(sh_lamp, camera,  glm::rotate(light.model, th, {0.0, 1.0, 1.0}));
 
