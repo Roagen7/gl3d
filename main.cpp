@@ -16,6 +16,7 @@
 #include "src/object/Mesh.h"
 
 
+
 const int width = 1920;
 const int height = 1080;
 Vertex vertices[] =
@@ -112,6 +113,8 @@ public:
                         Texture("../assets/textures/planks.png", "diffuse", 0, GL_RGBA, GL_UNSIGNED_BYTE),
                         Texture("../assets/textures/planksSpec.png", "specular", 1, GL_RED, GL_UNSIGNED_BYTE)
                 };
+
+        // static array -> vector
         std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
         std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
         std::vector <Texture> tex(textures, textures + sizeof(textures) / sizeof(Texture));
@@ -164,21 +167,23 @@ public:
             camera.Inputs(window);
             camera.updateMatrix(45.0f, 0.1f, 100.0f);
 
-            //draw( shader to use, camera to use)
-            light.model = glm::translate(glm::mat4(1.0f), lightPos);
-            light.model = glm::rotate(light.model, th, {0.0, 1.0, 0.0});
-//            floor.model = glm::rotate(glm::mat4(1.0f), th, {1.0, 0.0, 0.0});
-            floor.model = glm::translate(glm::mat4(1.0f), {th, 0,0});
 
+            th += 0.01;
+            light.model = glm::translate(glm::mat4(1.0f), lightPos);
+            light.model = glm::rotate(light.model, th, {0.0, 1.0, 1.0});
+//            floor.model = glm::rotate(glm::mat4(1.0f), th, {1.0, 0.0, 0.0});
+//            floor.model = glm::translate(glm::mat4(1.0f), {th, 0,0});
+
+
+            //draw( shader to use, camera to use)
             floor.Draw(sh, camera);
             light.Draw(lightShader, camera);
+
             //swap front and back buffers
-
-
             glfwSwapBuffers(window);
             //make the window responsive to input
             glfwPollEvents();
-            th += 0.01;
+
         }
 
 

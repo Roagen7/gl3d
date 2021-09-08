@@ -43,7 +43,7 @@ void Mesh::Draw(Shader &shader, Camera &camera) {
         } else if(type == "specular"){
             num = std::to_string(numSpecular++);
         }
-
+        std::cout << type + num << std::endl;
         textures[i].texUnit(shader,(type + num).c_str(), i);
         textures[i].Bind();
     }
