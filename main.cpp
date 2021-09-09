@@ -112,7 +112,7 @@ public:
                 {
                         Texture("../assets/textures/planks.png", "diffuse", 0),
                         Texture("../assets/textures/planksSpec.png", "specular", 1),
-                        Texture("../assets/textures/hammer.jpg", "diffuse", 2)
+                        Texture("../assets/textures/sphere.jpg", "diffuse", 2)
                 };
 
         // static array -> vector
@@ -122,30 +122,30 @@ public:
         std::vector <Vertex> lightVerts(lightVertices, lightVertices + sizeof(lightVertices) / sizeof(Vertex));
         std::vector <GLuint> lightInd(lightIndices, lightIndices + sizeof(lightIndices) / sizeof(GLuint));
         // init shaders
-        Shader sh_col("../src/shader/shaders/mesh/default/col/vs.glsl", "../src/shader/shaders/mesh/default/col/fs.glsl");
-        Shader sh_tex_spec("../src/shader/shaders/mesh/default/tex_spec/vs.glsl","../src/shader/shaders/mesh/default/tex_spec/fs.glsl");
-        Shader sh_tex("../src/shader/shaders/mesh/default/tex/vs.glsl","../src/shader/shaders/mesh/default/tex/fs.glsl");
+        Shader sh_col("../src/shader/shaders/mesh/default/general/vs.glsl", "../src/shader/shaders/mesh/default/col/fs.glsl");
+        Shader sh_tex_spec("../src/shader/shaders/mesh/default/general/vs.glsl","../src/shader/shaders/mesh/default/tex_spec/fs.glsl");
+        Shader sh_tex("../src/shader/shaders/mesh/default/general/vs.glsl","../src/shader/shaders/mesh/default/tex/fs.glsl");
         Shader sh_lamp("../src/shader/shaders/light/lamp/vs.glsl", "../src/shader/shaders/light/lamp/fs.glsl");
 
         //init meshes
 
         std::vector <Vertex> vis;
         std::vector<GLuint> is;
-        Mesh::fromObjFile("../assets/objs/hammer.obj",vis,is);
+        Mesh::fromObjFile("../assets/objs/sphere.obj",vis,is);
         std::vector<Texture> empty = {
-                Texture("../assets/textures/hammer.jpg", "diffuse", 0)
+                Texture("../assets/textures/earth.jpg", "diffuse", 0)
         };
-        Mesh hammer(vis, is, empty);
+        Mesh sphere(vis, is, empty);
         Mesh floor(verts, ind, tex);
         Mesh light(lightVerts, lightInd, tex);
-
+//        auto mod = Model("../assets/models/bunny/scene.gltf");
 
 
         //light attribs
         glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 
-        glm::vec3 lightPos = {0.5f, 0.5f, 0.0f};
+        glm::vec3 lightPos = {-1.0f, 2.0f, 0.0f};
         glm::mat4 lightModel = glm::mat4(1.0f);
 //        lightModel = glm::rotate(lightModel, 0.4f, glm::vec3(1.0, 0.0,0.0));
 //        lightModel = glm::translate(lightModel, lightPos);
@@ -189,13 +189,16 @@ public:
             sh_tex_spec.setVec3("lightPos", lightPos.x,lightPos.y,lightPos.z);
             sh_col.setVec3("lightPos", lightPos.x,lightPos.y,lightPos.z);
             //draw( shader to use, camera to use)
-
-            auto m = glm::rotate(glm::mat4(1.f),th, {0.0, 1.0, 0.0});
-//            auto m = glm::mat4(1.f);
-            hammer.Draw(sh_tex, camera, glm::translate(m, {0.0, 0.0, -4.0}));
+            auto m = glm::mat4(1.f);
+            auto rot = glm::rotate(m,th, {0.0, 1.0, 0.0});
+            auto tr = glm::translate(glm::mat4(1.0f), {0.0, -1.0, -1.0});
+            m = glm::translate(m, {0.0, 0.0, -1.0});
+            m = glm::rotate(m,th, {0.0, 1.0, 0.0});
+            m = tr * rot;
+            sphere.Draw(sh_col, camera, m);
             floor.Draw(sh_tex_spec, camera, glm::mat4(1.0f));
             light.Draw(sh_lamp, camera,  glm::rotate(light.model, th, {0.0, 1.0, 1.0}));
-
+//            mod.Draw(sh_tex_spec, camera);
             //swap front and back buffers
             glfwSwapBuffers(window);
             //make the window responsive to input

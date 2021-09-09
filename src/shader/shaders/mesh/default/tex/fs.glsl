@@ -97,7 +97,7 @@ void main()
 
 
 
-   gl_FragColor = pointLight();
-//   gl_FragColor = texture(diffuse0,texCoord);
+//   gl_FragColor = pointLight();
+   gl_FragColor = texture(diffuse0,texCoord);
 
 }
