@@ -8,7 +8,7 @@ in vec2 texCoord;
 
 
 uniform sampler2D diffuse0;
-
+uniform sampler2D diffuse1;
 uniform vec4 lightColor;
 uniform vec3 lightPos;
 uniform vec3 camPos;
@@ -98,4 +98,6 @@ void main()
 
 
    gl_FragColor = pointLight();
+//   gl_FragColor = texture(diffuse0,texCoord);
+
 }

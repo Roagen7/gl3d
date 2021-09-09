@@ -47,7 +47,9 @@ void Mesh::Draw(Shader &shader, Camera &camera,  glm::mat4 matrix,
         } else if(type == "specular"){
             num = std::to_string(numSpecular++);
         }
+//        std::cout << textures[i].type << std::endl;
         textures[i].texUnit(shader,(type + num).c_str(), i);
+//        std::cout << type + num << std::endl;
         textures[i].Bind();
     }
 
@@ -103,7 +105,10 @@ void Mesh::fromObjFile(std::string filename, std::vector<Vertex> &vs, std::vecto
             } else if(x[1] == 't'){
                 //texture
                 glm::vec2 v;
-                l >> trash >> v.x >> v.y;
+                l >> trash >> trash >> v.y >> v.x;
+                std::cout << v.x <<" " << v.y << std::endl;
+                v.x = 1 - v.x;
+//                v.y = 1 - v.y;
                 cachedTexs.push_back(v);
             } else {
                 //position

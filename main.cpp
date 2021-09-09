@@ -111,7 +111,8 @@ public:
         Texture textures[]
                 {
                         Texture("../assets/textures/planks.png", "diffuse", 0),
-                        Texture("../assets/textures/planksSpec.png", "specular", 1)
+                        Texture("../assets/textures/planksSpec.png", "specular", 1),
+                        Texture("../assets/textures/hammer.jpg", "diffuse", 2)
                 };
 
         // static array -> vector
@@ -131,7 +132,9 @@ public:
         std::vector <Vertex> vis;
         std::vector<GLuint> is;
         Mesh::fromObjFile("../assets/objs/hammer.obj",vis,is);
-        std::vector<Texture> empty = {};
+        std::vector<Texture> empty = {
+                Texture("../assets/textures/hammer.jpg", "diffuse", 0)
+        };
         Mesh hammer(vis, is, empty);
         Mesh floor(verts, ind, tex);
         Mesh light(lightVerts, lightInd, tex);
@@ -157,6 +160,9 @@ public:
 
         sh_tex_spec.setVec4("lightColor", lightColor.x,lightColor.y,lightColor.z, lightColor.w);
         sh_tex_spec.setVec3("lightPos", lightPos.x,lightPos.y,lightPos.z);
+
+        sh_tex.setVec4("lightColor", lightColor.x,lightColor.y,lightColor.z, lightColor.w);
+        sh_tex.setVec3("lightPos", lightPos.x,lightPos.y,lightPos.z);
 
         sh_col.setVec4("lightColor", lightColor.x,lightColor.y,lightColor.z, lightColor.w);
         sh_col.setVec3("lightPos", lightPos.x,lightPos.y,lightPos.z);
@@ -186,7 +192,7 @@ public:
 
             auto m = glm::rotate(glm::mat4(1.f),th, {0.0, 1.0, 0.0});
 //            auto m = glm::mat4(1.f);
-            hammer.Draw(sh_col, camera, glm::translate(m, {0.0, 0.0, -4.0}));
+            hammer.Draw(sh_tex, camera, glm::translate(m, {0.0, 0.0, -4.0}));
             floor.Draw(sh_tex_spec, camera, glm::mat4(1.0f));
             light.Draw(sh_lamp, camera,  glm::rotate(light.model, th, {0.0, 1.0, 1.0}));
 

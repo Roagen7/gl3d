@@ -30,7 +30,7 @@ void main()
 
 
     crntPos = vec3(model * translation * -rotation * scale * vec4(aPos, 1.0f));
-    Normal = aNorm;
+    Normal = mat3(transpose(inverse(model))) * aNorm;
     color = aCol;
     texCoord = mat2(0.0,-1.0, 1.0, 0.0) * aTex;
 
