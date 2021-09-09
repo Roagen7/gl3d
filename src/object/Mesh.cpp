@@ -22,9 +22,20 @@ int checkBack(std::vector<Vertex> prev_vs, Vertex curr_v){
 
 Mesh::Mesh()= default;
 Mesh::Mesh(std::vector<Vertex> &vertices, std::vector<GLuint> &indices, std::vector<Texture> &textures, glm::vec3 color) {
+
+    for(auto &v : vertices){
+        v.color = color;
+    }
+
+
     this->vertices = vertices;
     this->indices = indices;
     this->textures = textures;
+
+
+
+
+
 
     vao.Bind();
 

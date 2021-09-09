@@ -7,6 +7,7 @@ find_package(OpenGL REQUIRED)
 find_package(glfw3 3.3 REQUIRED)
 add_subdirectory(glad/)
 add_subdirectory(include/glm/)
+add_subdirectory(include/assimp/)
 
 
 
@@ -17,3 +18,4 @@ target_link_libraries(${PROJECT_NAME} PUBLIC OpenGL::GL)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE glad)
 target_link_libraries(${PROJECT_NAME} PRIVATE glm)
+target_link_libraries(${PROJECT_NAME} PRIVATE assimp)

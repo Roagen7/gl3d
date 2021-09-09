@@ -131,11 +131,12 @@ public:
 
         std::vector <Vertex> vis;
         std::vector<GLuint> is;
-        Mesh::fromObjFile("../assets/objs/sphere.obj",vis,is);
+        Mesh::fromObjFile("../assets/objs/cube.obj",vis,is);
         std::vector<Texture> empty = {
                 Texture("../assets/textures/earth.jpg", "diffuse", 0)
         };
-        Mesh sphere(vis, is, empty);
+        Mesh sphere(vis, is, empty, {1.0,1.0,0.0});
+        Mesh sphere2(vis, is, empty, {1.0,0.0,0.0});
         Mesh floor(verts, ind, tex);
         Mesh light(lightVerts, lightInd, tex);
 //        auto mod = Model("../assets/models/bunny/scene.gltf");
@@ -196,7 +197,8 @@ public:
             m = glm::rotate(m,th, {0.0, 1.0, 0.0});
             m = tr * rot;
             sphere.Draw(sh_col, camera, m);
-            floor.Draw(sh_tex_spec, camera, glm::mat4(1.0f));
+            sphere2.Draw(sh_col,camera, glm::mat4(1.0f));
+//            floor.Draw(sh_tex_spec, camera, glm::mat4(1.0f));
             light.Draw(sh_lamp, camera,  glm::rotate(light.model, th, {0.0, 1.0, 1.0}));
 //            mod.Draw(sh_tex_spec, camera);
             //swap front and back buffers
