@@ -121,9 +121,9 @@ public:
         std::vector <Vertex> lightVerts(lightVertices, lightVertices + sizeof(lightVertices) / sizeof(Vertex));
         std::vector <GLuint> lightInd(lightIndices, lightIndices + sizeof(lightIndices) / sizeof(GLuint));
         // init shaders
-        Shader sh_col("../src/shader/shaders/mesh/col/vs.glsl", "../src/shader/shaders/mesh/col/fs.glsl");
-        Shader sh_tex_spec("../src/shader/shaders/mesh/tex_spec/vs.glsl","../src/shader/shaders/mesh/tex_spec/fs.glsl");
-        Shader sh_tex("../src/shader/shaders/mesh/tex/vs.glsl","../src/shader/shaders/mesh/tex/fs.glsl");
+        Shader sh_col("../src/shader/shaders/mesh/default/col/vs.glsl", "../src/shader/shaders/mesh/default/col/fs.glsl");
+        Shader sh_tex_spec("../src/shader/shaders/mesh/default/tex_spec/vs.glsl","../src/shader/shaders/mesh/default/tex_spec/fs.glsl");
+        Shader sh_tex("../src/shader/shaders/mesh/default/tex/vs.glsl","../src/shader/shaders/mesh/default/tex/fs.glsl");
         Shader sh_lamp("../src/shader/shaders/light/lamp/vs.glsl", "../src/shader/shaders/light/lamp/fs.glsl");
 
         //init meshes
@@ -183,7 +183,10 @@ public:
             sh_tex_spec.setVec3("lightPos", lightPos.x,lightPos.y,lightPos.z);
             sh_col.setVec3("lightPos", lightPos.x,lightPos.y,lightPos.z);
             //draw( shader to use, camera to use)
-            hammer.Draw(sh_col, camera, glm::translate(glm::mat4(1.0f), {0.0, 0.0, -4.0}));
+
+            auto m = glm::rotate(glm::mat4(1.f),th, {0.0, 1.0, 0.0});
+//            auto m = glm::mat4(1.f);
+            hammer.Draw(sh_col, camera, glm::translate(m, {0.0, 0.0, -4.0}));
             floor.Draw(sh_tex_spec, camera, glm::mat4(1.0f));
             light.Draw(sh_lamp, camera,  glm::rotate(light.model, th, {0.0, 1.0, 1.0}));
 

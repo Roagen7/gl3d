@@ -27,10 +27,12 @@ void main()
     //    gl_Position = vec4(aPos.x + aPos.x * scale, aPos.y + aPos.y * scale, aPos.z + aPos.z * scale, 1.0);
     //    gl_Position = proj * view * model * vec4(aPos, 1.0);
 
-
-
+    mat4 MVI = transpose(inverse(model));
+//    vec4 rotNorm = mat3(MVI) * aNorm;
     crntPos = vec3(model * translation * -rotation * scale * vec4(aPos, 1.0f));
-    Normal = aNorm;
+//    Normal = vec3(rotNorm.x,rotNorm.y, rotNorm.z);
+    Normal = mat3(MVI) * aNorm;
+//    Normal = aNorm;
     color = aCol;
     texCoord = mat2(0.0,-1.0, 1.0, 0.0) * aTex;
 
